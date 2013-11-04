@@ -33,6 +33,23 @@ class DslSampleTest extends Specification {
         assertXMLEqual '<?xml version="1.0" encoding="UTF-8"?>' + mavenXmlWithTemplate, mavenJobWithTemplate
     }
 
+    def 'run dsl using variables to test resolve strategy'() {
+        setup:
+        StringJobManagement jm = new StringJobManagement()
+
+        when:
+        Set<GeneratedJob> results = DslScriptLoader.runDslEngine(sampleDslWithVariable, jm)
+
+        then:
+        results != null
+        results.size() == 1
+        jm.savedConfigs.size() == 1
+        def firstJob = jm.savedConfigs['test']
+        firstJob != null
+        println(firstJob)
+        assertXMLEqual '<?xml version="1.0" encoding="UTF-8"?>' + sampleDslWithVariableXml, firstJob
+    }
+
     def 'use parameters when loading script'() {
         setup:
         StringJobManagement jm = new StringJobManagement()
@@ -396,5 +413,62 @@ job(type: Maven) {
         </branches>
     </scm>
 </maven2-moduleset>
+'''
+
+    def sampleDslWithVariable = '''
+def gitUrl = 'git://github.com/JavaPosseRoundup/job-dsl-plugin.git'
+
+job {
+    name 'test'
+    scm {
+        git {
+            remote {
+                url(gitUrl)
+            }
+        }
+    }
+}
+'''
+
+    def sampleDslWithVariableXml = '''
+<project>
+    <actions></actions>
+    <description></description>
+    <keepDependencies>false</keepDependencies>
+    <properties></properties>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers class='vector'></triggers>
+    <concurrentBuild>false</concurrentBuild>
+    <builders></builders>
+    <publishers></publishers>
+    <buildWrappers></buildWrappers>
+    <scm class='hudson.plugins.git.GitSCM'>
+        <userRemoteConfigs>
+            <hudson.plugins.git.UserRemoteConfig>
+                <url>git://github.com/JavaPosseRoundup/job-dsl-plugin.git</url>
+            </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+            <hudson.plugins.git.BranchSpec>
+                <name>**</name>
+            </hudson.plugins.git.BranchSpec>
+        </branches>
+        <configVersion>2</configVersion>
+        <disableSubmodules>false</disableSubmodules>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <authorOrCommitter>false</authorOrCommitter>
+        <clean>false</clean>
+        <wipeOutWorkspace>false</wipeOutWorkspace>
+        <pruneBranches>false</pruneBranches>
+        <remotePoll>false</remotePoll>
+        <ignoreNotifyCommit>false</ignoreNotifyCommit>
+        <gitTool>Default</gitTool>
+        <skipTag>false</skipTag>
+    </scm>
+</project>
 '''
 }

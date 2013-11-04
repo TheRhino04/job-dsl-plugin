@@ -36,8 +36,8 @@ public class Job {
 
         // Helpers
         helperAuthorization = new AuthorizationContextHelper(withXmlActions, type)
-        helperScm = new ScmContextHelper(withXmlActions, type)
-        helperMultiscm = new MultiScmContextHelper(withXmlActions, type)
+        helperScm = new ScmContextHelper(withXmlActions, type, jobManagement)
+        helperMultiscm = new MultiScmContextHelper(withXmlActions, type, jobManagement)
         helperTrigger = new TriggerContextHelper(withXmlActions, type)
         helperStep = new StepContextHelper(withXmlActions, type)
         helperPublisher = new PublisherContextHelper(withXmlActions, type)
